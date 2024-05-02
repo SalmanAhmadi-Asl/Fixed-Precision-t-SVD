@@ -15,31 +15,21 @@ function [Q, B, k] = t_rQB_auto_(A, relerr, b, P)
     
     for i=1:maxiter
         Omg = randn(n2, b, n3);
-         %Omg(:,:,2:end)=0;
-        Y = t_prod(A, Omg) - t_prod(Q, t_prod(B, Omg)); % 5. A * Omg - Q * (B * Omg)
+        Y = t_prod(A, Omg) - t_prod(Q, t_prod(B, Omg)); 
         
-         Qi = QR_tubal(Y);  %%% size - (n1, kmax, n3)  5.
-%         
-%         ap = conj(permute(A, [2,1,3]));  % A'
-%         qp = conj(permute(Q, [2,1,3]));  % Q'
-        %bp = conj(permute(B, [2,1,3]));  % B'
-        
-        % can skip orthonormalization for small b
+         Qi = QR_tubal(Y); 
         for j = 1:P
-            Qi = QR_tubal(t_prod(t_trans(A), Qi) );
-            Qi = QR_tubal(t_prod(A, Qi) );
+            Qi = QR_tubal(t_prod(t_trans(A), Qi)-t_prod(t_prod(t_trans(B),t_trans(Q)),Qi) );
+            Qi = QR_tubal(t_prod(A, Qi)-t_prod(t_prod(Q,B),Qi) );
         end
-      %  if i~=1
-        Qi = QR_tubal(Qi - t_prod(Q, (t_prod(t_trans(Q), Qi)))); % 6. orth( Qi - Q * (Q' * Qi) )
-       % end
-        %Bi = tm(conj(permute(Qi, [2,1,3])), A);          % 7. Qi' * A
+        Qi = QR_tubal(Qi - t_prod(Q, (t_prod(t_trans(Q), Qi)))); 
+
         Bi=t_prod(t_trans(Qi),A);
-%         Q = [Q, Qi];
-%         B = [B; Bi];
-        Q = cat(2, Q, Qi); % 8.
-        B = cat(1, B, Bi); % 9.
+
+        Q = cat(2, Q, Qi); 
+        B = cat(1, B, Bi); 
         
-        temp = E - norm(Bi(:), 'fro')^2; % 10.
+        temp = E - norm(Bi(:), 'fro')^2; 
 
         if temp < threshold   % precise rank determination 
             for j=1:b
@@ -61,12 +51,10 @@ function [Q, B, k] = t_rQB_auto_(A, relerr, b, P)
         end
         
     end
-%     Q = ifft(Q, [], 3);
-%     B = ifft(B, [], 3);
 
     if ~flag,
         k = i*b;
         fprintf('E = %f. Fail to converge within maxiter!\n\n', sqrt(E/E0));
     end
-    %disp(E / E0)
+
 end
