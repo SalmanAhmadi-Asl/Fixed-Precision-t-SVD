@@ -13,7 +13,7 @@ ad = double(A1) / 255;
 relerr = 2e-1;
 b = 4;
 P = 2;
-[Q, B, k] = t_rQB_auto(ad, relerr, b, P);
+[Q, B, k] = t_rQB_auto_(ad, relerr, b, P);
 disp(k);
 
 fprintf("Compression rate: %f\n", (numel(A1)/(numel(Q)+numel(B)) ))
